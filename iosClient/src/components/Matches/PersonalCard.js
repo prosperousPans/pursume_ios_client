@@ -2,11 +2,15 @@ import React, {Component} from 'react';
 import { 
   StyleSheet,
   Text,
+  ScrollView,
   View,
   TouchableOpacity,
 } from 'react-native';
 import { connect } from 'react-redux';
 
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+import Separator from '../Utilities/Separator';
 import ExperienceItem from './ExperienceItem.js'
 
 export class PersonalCard extends Component {
@@ -16,10 +20,22 @@ export class PersonalCard extends Component {
 
   render() {
     let currentProfile = this.props.currentMatch.profile[0];
+    const meIcon = (<Icon name="user-o" size={35} color="grey" />)
+    const quoteIconLeft = (<Icon name="quote-left" size={15} color="#2196F3" />)
+    const quoteIconRight = (<Icon name="quote-right" size={15} color="#2196F3" />)    
     return (
       <View>
-        <Text style={styles.bigText}>Personal</Text>
-        <Text style={styles.smallText}>{currentProfile.summary}</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.cardTitleText}>{meIcon} About Me</Text>
+        </View>
+
+        <View style={styles.mainContainer}>
+          <View style={styles.quoteContainerLeft} ><Text style={styles.textContainer} >{quoteIconLeft}</Text></View> 
+            <View style={styles.contentContainer}>
+                <Text style={styles.personalContent}>{currentProfile.summary}</Text>
+            </View> 
+          <View style={styles.quoteContainerRight}><Text style={styles.textContainer} >{quoteIconRight}</Text></View> 
+        </View>        
       </View>
     )
   }
@@ -35,26 +51,47 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps)(PersonalCard);
 
 const styles = StyleSheet.create({
-  card: {
-    flex: 1,
+  titleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 5    
   },
-  bigText: {
-    justifyContent: 'center',    
+  cardTitleText: {
     alignSelf: 'center',  
     color: 'grey',
-    fontSize: 30,
+    fontFamily: 'Avenir-Medium',    
+    fontSize: 35,
     fontWeight: 'bold',
   },
-  medText: {
-    color: 'grey',
-    fontSize: 18,
-    fontWeight: 'bold',
+
+
+  //quote block
+  mainContainer:{
+    flexDirection:'row', 
+    justifyContent: 'space-between',
+    flexWrap : 'wrap',
+    padding: 10 
   },
-  smallText: {
+  quoteContainerLeft:{
+    marginLeft:15,
+    width:30
+  },
+  quoteContainerRight:{
+    marginLeft:15,
+    width:30,
+    marginTop:50
+  },
+  contentContainer:{
+    marginLeft:3,
+    marginRight:3,
+    width:250,
+    flexWrap:'wrap',
+  },  
+  personalContent: {
     color: 'grey',
-    fontSize: 12,
-    fontWeight: 'bold',
-  } 
+    fontSize: 14,
+    fontFamily: 'Avenir-Medium',
+    fontStyle: 'italic',
+    marginLeft:10,
+  }, 
 })

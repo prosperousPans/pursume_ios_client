@@ -3,20 +3,27 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
   TouchableOpacity,
 } from 'react-native';
 import { connect } from 'react-redux';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import ExperienceItem from './ExperienceItem.js'
 
 export class ProjectCard extends Component {
   render() {
     let currentMatchProjExp = this.props.currentMatch.projExp;
+    const projectIcon = (<Icon name="laptop" size={35} color="grey" />)    
+
     return (
-      <View>
-        <Text style={styles.bigText}>Project</Text>
+      <ScrollView>
+        <View style={styles.titleContainer}>
+          <Text style={styles.cardTitleText}>{projectIcon} Project</Text>
+        </View>
+
         {currentMatchProjExp.map( (exp)=> <ExperienceItem key={exp.id} exp={exp}/> )}
-      </View>
+      </ScrollView>
     )
   }
 }
@@ -31,26 +38,17 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps)(ProjectCard);
 
 const styles = StyleSheet.create({
-  card: {
-    flex: 1,
+  titleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 5    
   },
-  bigText: {
-    justifyContent: 'center',    
+  cardTitleText: {
     alignSelf: 'center',  
     color: 'grey',
-    fontSize: 30,
+    fontFamily: 'Avenir-Medium',    
+    fontSize: 35,
     fontWeight: 'bold',
   },
-  medText: {
-    color: 'grey',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  smallText: {
-    color: 'grey',
-    fontSize: 12,
-    fontWeight: 'bold',
-  }   
+
 })

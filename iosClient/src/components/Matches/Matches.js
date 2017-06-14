@@ -5,8 +5,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
-  AsyncStorage,
-  NavigatorIOS
+  AsyncStorage
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import Modal from 'react-native-modal'
@@ -24,8 +23,6 @@ import PersonalCard from './PersonalCard.js';
 import PursumeModalForm from './PursumeModalForm.js';
 import MatchedModal from './MatchedModal.js';
 
-import axios from 'axios';
-
 export class Matches extends Component{
   constructor (props) {
     super(props);
@@ -34,6 +31,8 @@ export class Matches extends Component{
       isMatchedModalVisible: false,
       currentIndex: 0
     }
+
+    this.determineUser = this.determineUser.bind(this);    
     this.checkMatch = this.checkMatch.bind(this);
     this._showModal = this._showModal.bind(this);
     this._hideModal = this._hideModal.bind(this);
@@ -41,10 +40,21 @@ export class Matches extends Component{
     this._hideMatchModal = this._hideMatchModal.bind(this);    
     this.handleModalSubmit = this.handleModalSubmit.bind(this);
     this._onMomentumScrollEnd = this._onMomentumScrollEnd.bind(this);
+    this.determineUser();    
   }
 
-  componentDidMount() {
-    this.props.fetch(4); //replace with authID    
+  async determineUser(){
+    try {  
+      await AsyncStorage.multiGet(['userId','AuthToken' ], (err, result) => {
+        var authid = result[0][1];
+        var config = {
+          headers:{ 'Authorization': 'Bearer '+ result[1][1] }
+        }
+        this.props.fetch(authid, config);
+      })
+    } catch (error) {
+      console.log('AsyncStorage error: ' + error.message);
+    }
   }
   
   _showModal() {
@@ -77,10 +87,17 @@ export class Matches extends Component{
   }
 
   handleModalSubmit (response) {
-    let users_a_id = 4;
-    let users_b_id = this.props.currentMatch.profile[0].id;
+    AsyncStorage.multiGet(['userId','AuthToken' ], (err, result) => {
+      var authid = result[0][1];
+      var config = {
+        headers:{ 'Authorization': 'Bearer '+ result[1][1] }
+      }
+      let users_a_auth_id = authid;
+      let users_b_id = this.props.currentMatch.profile[0].id;
 
-    this.props.pursume(response, users_a_id, users_b_id)
+      this.props.pursume(response, users_a_auth_id, users_b_id, config)
+    })
+
     setTimeout(this.checkMatch, 1000);
   }
 
@@ -89,9 +106,6 @@ export class Matches extends Component{
   }  
 
   render() {
-    // AsyncStorage.getItem('AuthToken', (err, result) => {
-    //   console.log('HELLOOO');
-    // });
     // {console.log(this.props, 'IN MATCHES COMPONENT RENDER') }
     if (this.props.currentMatch) {
       return(
@@ -136,12 +150,15 @@ export class Matches extends Component{
             showsButtons={true}
             ref="slider"
             onMomentumScrollEnd={this._onMomentumScrollEnd}
+            nextButton={<Text style={{color: '#2196F3', fontSize: 40}}>›</Text>}
+            prevButton={<Text style={{color: '#2196F3', fontSize: 40}}>‹</Text>}
+            activeDotColor={'#2196F3'}
           >
             <HighlightsCard />
+            <PersonalCard />
             <EducationCard />
             <ProfessionalCard />
             <ProjectCard />
-            <PersonalCard />
           </Swiper>
 
         </View>
@@ -172,8 +189,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetch: (userID) => { dispatch( getMatches(userID) ) },
-    pursume: (response, users_a_id, users_b_id) => { dispatch( sendResponse(response, users_a_id, users_b_id) ) },
+    fetch: (authid, config) => { dispatch( getMatches(authid, config) ) },
+    pursume: (response, users_a_auth_id, users_b_id, config) => { dispatch( sendResponse(response, users_a_auth_id, users_b_id, config) ) },
     nextMatch: () => { dispatch( nextMatch() ) }
   }
 };
@@ -187,6 +204,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',     
     padding: 10,
     backgroundColor:'#2196F3',
+    // borderRadius: 5,
   },
   card: {
     flex: 1,
@@ -196,7 +214,8 @@ const styles = StyleSheet.create({
   pursumeButtonText: {
     fontSize: 30,
     color: '#fff',
-    alignSelf: 'center'    
+    alignSelf: 'center',
+    fontFamily: 'Avenir-Medium',    
   },
   closeButton: {
     fontSize: 30,
