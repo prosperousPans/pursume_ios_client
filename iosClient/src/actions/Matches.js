@@ -27,15 +27,13 @@ function getNextMatch() {
   }
 }
 
-
-
-export function getMatches (userID) {
+export function getMatches (authid, config) {
   return (dispatch) => {
-    dispatch(gettingMatches(userID));
+    dispatch( gettingMatches(authid) );
 
-    axios.get('http://localhost:3000/get-profile', {params: {id: userID}})
+    axios.get('http://localhost:3000/profile-user?authid='+ authid, config)
     .then( result => {
-      var allMatches = JSON.parse(result.data[0].daily_all_matches)
+      var allMatches = JSON.parse(result.data.daily_all_matches);
       dispatch(gotMatches(allMatches));
 
       return allMatches;

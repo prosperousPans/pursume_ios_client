@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
+  AsyncStorage
 } from 'react-native';
 import { connect } from 'react-redux';
 import { getData } from '../../actions/Dashboard';
@@ -12,17 +13,23 @@ import axios from 'axios';
 export class Dashboard extends Component {
   constructor (props){
     super();
-    this.fetchData = this.fetchData.bind(this);    
+    this.determineUser();
   }
 
-  componentDidMount() {
-    this.fetchData();
+  async determineUser(){
+    try {  
+      await AsyncStorage.multiGet(['userId','AuthToken' ], (err, result) => {
+        var authid = result[0][1];
+        var config = {
+          headers:{ 'Authorization': 'Bearer '+ result[1][1] }
+        }
+        this.props.fetchData(authid, config);
+      })
+    } catch (error) {
+      console.log('AsyncStorage error: ' + error.message);
+    }
   }
 
-  fetchData() {
-    this.props.fetchData(4);
-  }  
-  
   render() {
     // {console.log(this.props,'this.props INSIDE DASHBOARD RENDER')}
     if (this.props.topVertical){
@@ -33,7 +40,7 @@ export class Dashboard extends Component {
           <Text style={styles.bigText}>{"'" + this.props.topReason + "'"}</Text>
           <Text style={styles.medText}>Top Reason for Connection</Text>
           <Text style={styles.bigText}>{"'" + this.props.topVertical + "'"}</Text>
-          <Text style={styles.medText}>Top Vertical of Connections</Text>
+          <Text style={styles.medText}>Top Industry of Connections</Text>
         </View>
       )
     } else {
@@ -54,7 +61,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchData: (userID) => { dispatch( getData(userID) ) },
+    fetchData: (authid, config) => { dispatch( getData(authid, config) ) },
   }
 };
 

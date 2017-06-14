@@ -3,20 +3,27 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
   TouchableOpacity,
 } from 'react-native';
 import { connect } from 'react-redux';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import ExperienceItem from './ExperienceItem.js'
 
 export class ProfessionalCard extends Component {
   render() {
     let currentMatchProfExp = this.props.currentMatch.profExp;
+    const professionalIcon = (<Icon name="building-o" size={35} color="grey" />)    
     return (
-      <View>
-        <Text style={styles.bigText}>Professional</Text>
+      <ScrollView>
+        <View style={styles.titleContainer}>
+          <Text style={styles.cardTitleText}>{professionalIcon} Professional</Text>
+        </View>
+
+        
         {currentMatchProfExp.map( (exp)=> <ExperienceItem key={exp.id} exp={exp}/> )}
-      </View>
+      </ScrollView>
     )
   }
 }
@@ -32,26 +39,17 @@ export default connect(mapStateToProps)(ProfessionalCard);
 
 
 const styles = StyleSheet.create({
-  card: {
-    flex: 1,
+  titleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 5    
   },
-  bigText: {
-    justifyContent: 'center',    
+  cardTitleText: {
     alignSelf: 'center',  
     color: 'grey',
-    fontSize: 30,
+    fontFamily: 'Avenir-Medium',    
+    fontSize: 35,
     fontWeight: 'bold',
   },
-  medText: {
-    color: 'grey',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  smallText: {
-    color: 'grey',
-    fontSize: 12,
-    fontWeight: 'bold',
-  }     
+  
 })
